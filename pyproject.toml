@@ -1,0 +1,9 @@
+[project]
+name = "biforge"
+version = "0.1.0"
+description = "Offline Tableau to Microsoft Fabric / Power BI migration engine"
+requires-python = ">=3.11"
+dependencies = []
+
+[tool.vercel]
+entrypoint = "api.migrate:handler"

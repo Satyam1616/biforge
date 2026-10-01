@@ -1,4 +1,4 @@
-<!-- LIVE_URL -->
+<!-- LIVE_URL --> **▶ Live demo: https://biforge.vercel.app**
 
 # BIForge
 
@@ -8,6 +8,7 @@
 ![python](https://img.shields.io/badge/python-3.11%2B-blue)
 ![deps](https://img.shields.io/badge/dependencies-none%20(stdlib)-success)
 ![license](https://img.shields.io/badge/license-MIT-black)
+[![live](https://img.shields.io/badge/demo-live-black?logo=vercel)](https://biforge.vercel.app)
 
 BIForge automates the assessment, conversion, and validation of Tableau
 workbooks into Power BI artifacts — the end-to-end lifecycle an enterprise tool
@@ -16,7 +17,7 @@ keys, and zero cost**. It is rule-based (a real lexer → parser → DAX code
 generator), so every run is reproducible and auditable rather than a black-box
 LLM guess.
 
-> **Live demo:** _deploying — URL will be added here._
+> **Live demo:** <https://biforge.vercel.app> — upload a `.twb`/`.twbx` and migrate in the browser.
 
 ## Features
 
@@ -109,18 +110,20 @@ emitted best-effort and flagged **needs review**.
 
 ## Deploy (Vercel)
 
-Frontend (`index.html`) + Python serverless backend (`api/migrate.py`) deploy as
-one project, wired same-origin:
+The app is deployed as a single Python entrypoint (`api/migrate.py`) that serves
+the frontend on `GET` and runs the migration on `POST /api/migrate` — frontend
+and backend in one project, same origin, no CORS. `pyproject.toml` declares the
+entrypoint and `vercel.json` bundles the `biforge` package with the function
+(stdlib-only, so nothing installs at runtime).
 
 ```bash
-npm i -g vercel      # or use: npx vercel
+npm i -g vercel
 vercel login
 vercel --prod        # from the repo root
 ```
 
-`vercel.json` bundles the `biforge` package with the function. The engine uses
-only the standard library, so there is nothing to install at runtime. Regenerate
-the static frontend after UI changes with `python build_static.py`.
+Regenerate the standalone static page after UI changes with
+`python build_static.py` (used for the offline `index.html`).
 
 ## Project structure
 

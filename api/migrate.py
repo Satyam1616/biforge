@@ -14,6 +14,11 @@ from urllib.parse import parse_qs, urlparse
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from biforge.service import migrate_bytes  # noqa: E402
+from biforge.webui_page import build_upload_page  # noqa: E402
+
+# the deployed single-entrypoint function serves the frontend on GET and runs
+# the migration on POST (all routes reach this handler on Vercel's Python runtime)
+_PAGE = build_upload_page("/api/migrate")
 
 
 class handler(BaseHTTPRequestHandler):
@@ -38,5 +43,9 @@ class handler(BaseHTTPRequestHandler):
             self._json(400, {"error": str(exc)})
 
     def do_GET(self) -> None:
-        self._json(200, {"ok": True, "service": "biforge",
-                         "usage": "POST a .twb/.twbx body to this endpoint"})
+        body = _PAGE.encode("utf-8")
+        self.send_response(200)
+        self.send_header("Content-Type", "text/html; charset=utf-8")
+        self.send_header("Content-Length", str(len(body)))
+        self.end_headers()
+        self.wfile.write(body)

@@ -17,3 +17,6 @@ tests/_out/
 .idea/
 .DS_Store
 Thumbs.db
+
+.vercel
+.env*
