@@ -1,0 +1,103 @@
+<?xml version='1.0' encoding='utf-8' ?>
+<workbook version='18.1'>
+  <datasources>
+    <datasource name='federated.superstore' caption='Superstore Sales'>
+      <column name='[Sales]' caption='Sales' datatype='real' role='measure' type='quantitative' />
+      <column name='[Profit]' caption='Profit' datatype='real' role='measure' type='quantitative' />
+      <column name='[Quantity]' caption='Quantity' datatype='integer' role='measure' type='quantitative' />
+      <column name='[Discount]' caption='Discount' datatype='real' role='measure' type='quantitative' />
+      <column name='[Order Date]' caption='Order Date' datatype='date' role='dimension' type='ordinal' />
+      <column name='[Ship Date]' caption='Ship Date' datatype='date' role='dimension' type='ordinal' />
+      <column name='[Category]' caption='Category' datatype='string' role='dimension' type='nominal' />
+      <column name='[Region]' caption='Region' datatype='string' role='dimension' type='nominal' />
+      <column name='[Customer Name]' caption='Customer Name' datatype='string' role='dimension' type='nominal' />
+
+      <column name='[Profit Ratio]' caption='Profit Ratio' datatype='real' role='measure' type='quantitative'>
+        <calculation class='tableau' formula='SUM([Profit]) / SUM([Sales])' />
+      </column>
+      <column name='[Discount Band]' caption='Discount Band' datatype='string' role='dimension' type='nominal'>
+        <calculation class='tableau' formula='IF [Discount] &gt;= 0.5 THEN "High" ELSEIF [Discount] &gt;= 0.2 THEN "Medium" ELSE "Low" END' />
+      </column>
+      <column name='[Days to Ship]' caption='Days to Ship' datatype='integer' role='dimension' type='ordinal'>
+        <calculation class='tableau' formula='DATEDIFF(&apos;day&apos;, [Order Date], [Ship Date])' />
+      </column>
+      <column name='[Profit KPI]' caption='Profit KPI' datatype='string' role='measure' type='nominal'>
+        <calculation class='tableau' formula='IIF(SUM([Profit]) &gt; 0, "Profitable", "Loss")' />
+      </column>
+      <column name='[Region Upper]' caption='Region Upper' datatype='string' role='dimension' type='nominal'>
+        <calculation class='tableau' formula='UPPER([Region])' />
+      </column>
+      <column name='[Order Year]' caption='Order Year' datatype='integer' role='dimension' type='ordinal'>
+        <calculation class='tableau' formula='YEAR([Order Date])' />
+      </column>
+      <column name='[Sales No Null]' caption='Sales No Null' datatype='real' role='measure' type='quantitative'>
+        <calculation class='tableau' formula='ZN([Sales])' />
+      </column>
+      <column name='[Has Tech]' caption='Has Tech' datatype='boolean' role='dimension' type='nominal'>
+        <calculation class='tableau' formula='CONTAINS([Category], "Tech")' />
+      </column>
+      <column name='[First Name]' caption='First Name' datatype='string' role='dimension' type='nominal'>
+        <calculation class='tableau' formula='SPLIT([Customer Name], " ", 1)' />
+      </column>
+      <column name='[Row Index]' caption='Row Index' datatype='integer' role='dimension' type='ordinal'>
+        <calculation class='tableau' formula='INDEX()' />
+      </column>
+      <column name='[Broken Calc]' caption='Broken Calc' datatype='real' role='measure' type='quantitative'>
+        <calculation class='tableau' formula='SUM([Sales]) * ' />
+      </column>
+    </datasource>
+  </datasources>
+
+  <worksheets>
+    <worksheet name='Sales by Category'>
+      <table><view>
+        <datasources><datasource name='federated.superstore' caption='Superstore Sales' /></datasources>
+        <datasource-dependencies datasource='federated.superstore'>
+          <column name='[Sales]' datatype='real' />
+          <column name='[Category]' datatype='string' />
+          <column name='[Profit Ratio]' datatype='real' />
+        </datasource-dependencies>
+      </view></table>
+    </worksheet>
+    <worksheet name='Profit by Region'>
+      <table><view>
+        <datasources><datasource name='federated.superstore' caption='Superstore Sales' /></datasources>
+        <datasource-dependencies datasource='federated.superstore'>
+          <column name='[Profit]' datatype='real' />
+          <column name='[Region]' datatype='string' />
+          <column name='[Profit Ratio]' datatype='real' />
+        </datasource-dependencies>
+      </view></table>
+    </worksheet>
+    <worksheet name='Profit by Region (copy)'>
+      <table><view>
+        <datasources><datasource name='federated.superstore' caption='Superstore Sales' /></datasources>
+        <datasource-dependencies datasource='federated.superstore'>
+          <column name='[Profit]' datatype='real' />
+          <column name='[Region]' datatype='string' />
+          <column name='[Profit Ratio]' datatype='real' />
+        </datasource-dependencies>
+      </view></table>
+    </worksheet>
+    <worksheet name='Customer Detail'>
+      <table><view>
+        <datasources><datasource name='federated.superstore' caption='Superstore Sales' /></datasources>
+        <datasource-dependencies datasource='federated.superstore'>
+          <column name='[Customer Name]' datatype='string' />
+          <column name='[Sales]' datatype='real' />
+          <column name='[Days to Ship]' datatype='integer' />
+          <column name='[Ghost Field]' datatype='string' />
+        </datasource-dependencies>
+      </view></table>
+    </worksheet>
+  </worksheets>
+
+  <dashboards>
+    <dashboard name='Executive Overview'>
+      <zones>
+        <zone name='Sales by Category' type-v2='layout-basic' />
+        <zone name='Profit by Region' type-v2='layout-basic' />
+      </zones>
+    </dashboard>
+  </dashboards>
+</workbook>

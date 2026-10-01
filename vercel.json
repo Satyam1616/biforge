@@ -1,0 +1,7 @@
+{
+  "functions": {
+    "api/migrate.py": {
+      "includeFiles": "biforge/**"
+    }
+  }
+}

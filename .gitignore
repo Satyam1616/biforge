@@ -1,0 +1,19 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.pytest_cache/
+
+# BIForge run outputs
+demo_out/
+biforge_out/
+tests/_out/
+
+# Vercel
+.vercel/
+
+# Editor / OS
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
