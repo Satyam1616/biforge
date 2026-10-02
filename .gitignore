@@ -6,6 +6,7 @@ __pycache__/
 
 # BIForge run outputs
 demo_out/
+demo_*/
 biforge_out/
 tests/_out/
 
