@@ -1,4 +1,4 @@
-<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>BIForge - Tableau to Power BI migration</title><style>
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>BIForge - HouseholdProductsSales</title><style>
 :root{
 --bg:#eef1f8; --bg2:#e7ebf5; --surface:#ffffff; --surface2:#f7f9fd;
 --border:#e3e8f1; --text:#121829; --muted:#657089; --faint:#8a93a8;
@@ -134,21 +134,7 @@ border-radius:8px;padding:3px 10px}
 .ok-note{color:var(--ok);font-weight:600}
 footer{color:var(--faint);font-size:12.5px;padding:8px 0 36px;text-align:center}
 footer b{color:var(--muted)}
-</style></head><body><header><div class="wrap"><div class="brand"><div class="logo">BI</div><div><h1>BIForge</h1><p>Tableau &rarr; Microsoft Fabric / Power BI migration &middot; deterministic &middot; offline &middot; no cloud</p></div></div></div></header><main><div class="wrap"><section class="hero">
-  <div class="drop" id="drop">
-    <input type="file" id="file" accept=".twb,.twbx" hidden>
-    <div class="drop-ic"><svg width="24" height="24" viewBox="0 0 24 24" fill="none"
-      stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-      <path d="M12 16V4M6 10l6-6 6 6"/><path d="M4 20h16"/></svg></div>
-    <div class="drop-title">Drop a Tableau workbook here</div>
-    <div class="drop-sub">or <button type="button" id="browse" class="link">browse your files</button> &middot; .twb or .twbx</div>
-    <div class="drop-file" id="fname"></div>
-  </div>
-  <div class="actions">
-    <button id="run" class="btn-primary" disabled>Run migration</button>
-    <span class="status" id="status">Choose a workbook to begin.</span>
-  </div>
-</section><section id="results" hidden>
+</style></head><body><header><div class="wrap"><div class="brand"><div class="logo">BI</div><div><h1>BIForge</h1><p>Tableau &rarr; Microsoft Fabric / Power BI migration &middot; deterministic &middot; offline &middot; no cloud</p></div></div></div></header><main><div class="wrap"><section id="results" hidden>
   <div class="summary">
     <div><h2 id="wbtitle"></h2><div class="pills" id="wbmeta"></div></div>
     <div class="ring-wrap">
@@ -184,8 +170,7 @@ footer b{color:var(--muted)}
         <div id="integrity" class="muted small"></div></div>
     </div>
   </div>
-</section></div></main><footer><div class="wrap">Runs fully on your machine. Every item marked <b>review</b> is emitted best-effort &mdash; verify it before sign-off.</div></footer><script>const BF_ENDPOINT="/api/migrate";
-
+</section></div></main><footer><div class="wrap">Runs fully on your machine. Every item marked <b>review</b> is emitted best-effort &mdash; verify it before sign-off.</div></footer><script>
 const $ = s => document.querySelector(s);
 const esc = s => (s==null?'':String(s)).replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));
 const stat=(n,l,cls)=>'<div class="stat '+(cls||'')+'"><div class="stat-n">'+n+
@@ -271,29 +256,4 @@ function render(d){
 
   $('#results').hidden=false;
 }
-const EP=(typeof BF_ENDPOINT!=='undefined')?BF_ENDPOINT:'/migrate';
-const fileEl=$('#file'),runEl=$('#run'),statusEl=$('#status'),dropEl=$('#drop'),fnameEl=$('#fname');
-let chosen=null;
-function setFile(f){ if(!f)return; chosen=f; fnameEl.textContent='Selected: '+f.name;
-  runEl.disabled=false; statusEl.textContent='Ready to migrate.'; }
-$('#browse').onclick=e=>{e.stopPropagation();fileEl.click();};
-dropEl.onclick=()=>fileEl.click();
-fileEl.onchange=()=>setFile(fileEl.files[0]);
-['dragenter','dragover'].forEach(ev=>dropEl.addEventListener(ev,e=>{
-  e.preventDefault();dropEl.classList.add('drag');}));
-['dragleave','dragend'].forEach(ev=>dropEl.addEventListener(ev,e=>dropEl.classList.remove('drag')));
-dropEl.addEventListener('drop',e=>{e.preventDefault();dropEl.classList.remove('drag');
-  const f=e.dataTransfer.files[0]; if(f){fileEl.files=e.dataTransfer.files;setFile(f);}});
-runEl.onclick=async()=>{
-  if(!chosen){statusEl.textContent='Choose a .twb or .twbx file first.';return;}
-  runEl.disabled=true;
-  statusEl.innerHTML='<span class="spin"></span> Migrating '+esc(chosen.name)+' …';
-  try{
-    const r=await fetch(EP+'?name='+encodeURIComponent(chosen.name),{method:'POST',body:chosen});
-    const d=await r.json();
-    if(!r.ok||d.error){statusEl.textContent='Error: '+(d.error||r.status);runEl.disabled=false;return;}
-    render(d); $('#results').scrollIntoView({behavior:'smooth'});
-    statusEl.textContent='Done — '+chosen.name;
-  }catch(e){statusEl.textContent='Error: '+e.message;}
-  runEl.disabled=false;
-};</script></body></html>
+render({"workbook": "HouseholdProductsSales", "source": "Tableau", "version": "18.1", "summary": {"datasources": 1, "fields": 26, "calculated_fields": 13, "worksheets": 6, "dashboards": 2, "converted": 11, "needs_review": 2, "failed": 0, "automated_accuracy": 84.6, "assisted_coverage": 100.0, "estimated_hours": 21, "overall_tier": "Low"}, "conversions": [{"name": "Revenue", "kind": "calculated_column", "status": "converted", "formula": "[Units Sold] * [Unit Price]", "dax": "( 'Household Products Sales'[Units Sold] * 'Household Products Sales'[Unit Price] )", "warnings": []}, {"name": "Profit", "kind": "calculated_column", "status": "converted", "formula": "([Unit Price] - [Unit Cost]) * [Units Sold]", "dax": "( ( 'Household Products Sales'[Unit Price] - 'Household Products Sales'[Unit Cost] ) * 'Household Products Sales'[Units Sold] )", "warnings": []}, {"name": "Total Revenue", "kind": "measure", "status": "converted", "formula": "SUM([Revenue])", "dax": "SUM ( 'Household Products Sales'[Revenue] )", "warnings": []}, {"name": "Profit Margin", "kind": "measure", "status": "converted", "formula": "SUM([Profit]) / SUM([Revenue])", "dax": "( SUM ( 'Household Products Sales'[Profit] ) / SUM ( 'Household Products Sales'[Revenue] ) )", "warnings": []}, {"name": "Discount Band", "kind": "calculated_column", "status": "converted", "formula": "IF [Discount] >= 0.3 THEN \"Deep\" ELSEIF [Discount] >= 0.1 THEN \"Standard\" ELSE \"None\" END", "dax": "IF ( ( 'Household Products Sales'[Discount] >= 0.3 ), \"Deep\", IF ( ( 'Household Products Sales'[Discount] >= 0.1 ), \"Standard\", \"None\" ) )", "warnings": []}, {"name": "Days to Ship", "kind": "calculated_column", "status": "converted", "formula": "DATEDIFF('day', [Order Date], [Ship Date])", "dax": "DATEDIFF ( 'Household Products Sales'[Order Date], 'Household Products Sales'[Ship Date], DAY )", "warnings": []}, {"name": "Order Year", "kind": "calculated_column", "status": "converted", "formula": "YEAR([Order Date])", "dax": "YEAR ( 'Household Products Sales'[Order Date] )", "warnings": []}, {"name": "Order Month", "kind": "calculated_column", "status": "review", "formula": "DATENAME('month', [Order Date])", "dax": "FORMAT ( 'Household Products Sales'[Order Date], \"General Date\" )", "warnings": ["DATENAME() mapped to FORMAT(); verify format string"]}, {"name": "Category Upper", "kind": "calculated_column", "status": "converted", "formula": "UPPER([Product Category])", "dax": "UPPER ( 'Household Products Sales'[Product Category] )", "warnings": []}, {"name": "Is Cleaning", "kind": "calculated_column", "status": "converted", "formula": "CONTAINS([Product Category], \"Cleaning\")", "dax": "CONTAINSSTRING ( 'Household Products Sales'[Product Category], \"Cleaning\" )", "warnings": []}, {"name": "Net Units", "kind": "measure", "status": "converted", "formula": "ZN(SUM([Units Sold]))", "dax": "COALESCE ( SUM ( 'Household Products Sales'[Units Sold] ), 0 )", "warnings": []}, {"name": "Return Flag", "kind": "calculated_column", "status": "converted", "formula": "IIF([Returned], \"Returned\", \"Kept\")", "dax": "IF ( 'Household Products Sales'[Returned], \"Returned\", \"Kept\" )", "warnings": []}, {"name": "Revenue Rank", "kind": "calculated_column", "status": "review", "formula": "INDEX()", "dax": "INDEX (  )", "warnings": ["function INDEX() has no mapping; emitted as-is"]}], "clusters": [["Regional Sales", "Regional Performance"]], "integrity": {"orphan_refs": [], "empty_dashboards": []}, "files": ["model.tmdl", "measures.dax", "assessment.md", "assessment.html", "manifest.json"], "file_base": ""});</script></body></html>

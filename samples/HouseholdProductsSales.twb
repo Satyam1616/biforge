@@ -1,0 +1,144 @@
+<?xml version='1.0' encoding='utf-8' ?>
+<workbook version='18.1'>
+  <datasources>
+    <datasource name='federated.household' caption='Household Products Sales'>
+      <column name='[Order ID]' caption='Order ID' datatype='string' role='dimension' type='nominal' />
+      <column name='[Order Date]' caption='Order Date' datatype='date' role='dimension' type='ordinal' />
+      <column name='[Ship Date]' caption='Ship Date' datatype='date' role='dimension' type='ordinal' />
+      <column name='[Product Name]' caption='Product Name' datatype='string' role='dimension' type='nominal' />
+      <column name='[Product Category]' caption='Product Category' datatype='string' role='dimension' type='nominal' />
+      <column name='[Brand]' caption='Brand' datatype='string' role='dimension' type='nominal' />
+      <column name='[Region]' caption='Region' datatype='string' role='dimension' type='nominal' />
+      <column name='[Channel]' caption='Channel' datatype='string' role='dimension' type='nominal' />
+      <column name='[Units Sold]' caption='Units Sold' datatype='integer' role='measure' type='quantitative' />
+      <column name='[Unit Price]' caption='Unit Price' datatype='real' role='measure' type='quantitative' />
+      <column name='[Unit Cost]' caption='Unit Cost' datatype='real' role='measure' type='quantitative' />
+      <column name='[Discount]' caption='Discount' datatype='real' role='measure' type='quantitative' />
+      <column name='[Returned]' caption='Returned' datatype='boolean' role='dimension' type='nominal' />
+
+      <column name='[Revenue]' caption='Revenue' datatype='real' role='measure' type='quantitative'>
+        <calculation class='tableau' formula='[Units Sold] * [Unit Price]' />
+      </column>
+      <column name='[Profit]' caption='Profit' datatype='real' role='measure' type='quantitative'>
+        <calculation class='tableau' formula='([Unit Price] - [Unit Cost]) * [Units Sold]' />
+      </column>
+      <column name='[Total Revenue]' caption='Total Revenue' datatype='real' role='measure' type='quantitative'>
+        <calculation class='tableau' formula='SUM([Revenue])' />
+      </column>
+      <column name='[Profit Margin]' caption='Profit Margin' datatype='real' role='measure' type='quantitative'>
+        <calculation class='tableau' formula='SUM([Profit]) / SUM([Revenue])' />
+      </column>
+      <column name='[Discount Band]' caption='Discount Band' datatype='string' role='dimension' type='nominal'>
+        <calculation class='tableau' formula='IF [Discount] &gt;= 0.3 THEN "Deep" ELSEIF [Discount] &gt;= 0.1 THEN "Standard" ELSE "None" END' />
+      </column>
+      <column name='[Days to Ship]' caption='Days to Ship' datatype='integer' role='dimension' type='ordinal'>
+        <calculation class='tableau' formula='DATEDIFF(&apos;day&apos;, [Order Date], [Ship Date])' />
+      </column>
+      <column name='[Order Year]' caption='Order Year' datatype='integer' role='dimension' type='ordinal'>
+        <calculation class='tableau' formula='YEAR([Order Date])' />
+      </column>
+      <column name='[Order Month]' caption='Order Month' datatype='string' role='dimension' type='nominal'>
+        <calculation class='tableau' formula='DATENAME(&apos;month&apos;, [Order Date])' />
+      </column>
+      <column name='[Category Upper]' caption='Category Upper' datatype='string' role='dimension' type='nominal'>
+        <calculation class='tableau' formula='UPPER([Product Category])' />
+      </column>
+      <column name='[Is Cleaning]' caption='Is Cleaning' datatype='boolean' role='dimension' type='nominal'>
+        <calculation class='tableau' formula='CONTAINS([Product Category], "Cleaning")' />
+      </column>
+      <column name='[Net Units]' caption='Net Units' datatype='real' role='measure' type='quantitative'>
+        <calculation class='tableau' formula='ZN(SUM([Units Sold]))' />
+      </column>
+      <column name='[Return Flag]' caption='Return Flag' datatype='string' role='dimension' type='nominal'>
+        <calculation class='tableau' formula='IIF([Returned], "Returned", "Kept")' />
+      </column>
+      <column name='[Revenue Rank]' caption='Revenue Rank' datatype='integer' role='dimension' type='ordinal'>
+        <calculation class='tableau' formula='INDEX()' />
+      </column>
+    </datasource>
+  </datasources>
+
+  <worksheets>
+    <worksheet name='Revenue by Category'>
+      <table><view>
+        <datasources><datasource name='federated.household' caption='Household Products Sales' /></datasources>
+        <datasource-dependencies datasource='federated.household'>
+          <column name='[Product Category]' datatype='string' />
+          <column name='[Total Revenue]' datatype='real' />
+          <column name='[Profit Margin]' datatype='real' />
+          <column name='[Order Year]' datatype='integer' />
+        </datasource-dependencies>
+      </view></table>
+    </worksheet>
+    <worksheet name='Regional Sales'>
+      <table><view>
+        <datasources><datasource name='federated.household' caption='Household Products Sales' /></datasources>
+        <datasource-dependencies datasource='federated.household'>
+          <column name='[Region]' datatype='string' />
+          <column name='[Units Sold]' datatype='integer' />
+          <column name='[Total Revenue]' datatype='real' />
+          <column name='[Profit Margin]' datatype='real' />
+        </datasource-dependencies>
+      </view></table>
+    </worksheet>
+    <worksheet name='Regional Performance'>
+      <table><view>
+        <datasources><datasource name='federated.household' caption='Household Products Sales' /></datasources>
+        <datasource-dependencies datasource='federated.household'>
+          <column name='[Region]' datatype='string' />
+          <column name='[Units Sold]' datatype='integer' />
+          <column name='[Total Revenue]' datatype='real' />
+        </datasource-dependencies>
+      </view></table>
+    </worksheet>
+    <worksheet name='Product Detail'>
+      <table><view>
+        <datasources><datasource name='federated.household' caption='Household Products Sales' /></datasources>
+        <datasource-dependencies datasource='federated.household'>
+          <column name='[Product Name]' datatype='string' />
+          <column name='[Brand]' datatype='string' />
+          <column name='[Units Sold]' datatype='integer' />
+          <column name='[Revenue]' datatype='real' />
+          <column name='[Profit]' datatype='real' />
+        </datasource-dependencies>
+      </view></table>
+    </worksheet>
+    <worksheet name='Shipping Analysis'>
+      <table><view>
+        <datasources><datasource name='federated.household' caption='Household Products Sales' /></datasources>
+        <datasource-dependencies datasource='federated.household'>
+          <column name='[Days to Ship]' datatype='integer' />
+          <column name='[Region]' datatype='string' />
+          <column name='[Channel]' datatype='string' />
+        </datasource-dependencies>
+      </view></table>
+    </worksheet>
+    <worksheet name='Returns Overview'>
+      <table><view>
+        <datasources><datasource name='federated.household' caption='Household Products Sales' /></datasources>
+        <datasource-dependencies datasource='federated.household'>
+          <column name='[Return Flag]' datatype='string' />
+          <column name='[Product Category]' datatype='string' />
+          <column name='[Units Sold]' datatype='integer' />
+        </datasource-dependencies>
+      </view></table>
+    </worksheet>
+  </worksheets>
+
+  <dashboards>
+    <dashboard name='Executive Sales Overview'>
+      <zones>
+        <zone name='Revenue by Category' type-v2='layout-basic' />
+        <zone name='Regional Sales' type-v2='layout-basic' />
+        <zone name='Shipping Analysis' type-v2='layout-basic' />
+      </zones>
+    </dashboard>
+    <dashboard name='Product Performance'>
+      <zones>
+        <zone name='Product Detail' type-v2='layout-basic' />
+        <zone name='Returns Overview' type-v2='layout-basic' />
+        <zone name='Regional Performance' type-v2='layout-basic' />
+      </zones>
+    </dashboard>
+  </dashboards>
+</workbook>

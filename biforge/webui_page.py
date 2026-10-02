@@ -1,87 +1,204 @@
-"""Shared HTML/CSS/JS fragments for the BIForge UI.
-
-Two front-ends are assembled from the same pieces so they look and behave
-identically:
-  * PAGE            - the interactive server page (upload -> fetch -> render)
-  * build_dashboard - a self-contained static HTML dashboard with the run's
-                      data embedded, openable offline with no server (used
-                      because socket servers may be blocked by local policy)
-"""
+"""Shared HTML/CSS/JS for the BIForge UI (server page, deployed frontend, and
+the self-contained offline dashboard are all assembled from these fragments)."""
 
 CSS = r'''<style>
-:root{--bg:#f4f6fb;--card:#fff;--ink:#1a2233;--muted:#6b7488;--line:#e6e9f0;
---accent:#4f46e5;--accent2:#0ea5a4;--ok:#16a34a;--okbg:#e9f7ee;
---warn:#b45309;--warnbg:#fdf3e3;--bad:#dc2626;--badbg:#fdeaea;}
+:root{
+--bg:#eef1f8; --bg2:#e7ebf5; --surface:#ffffff; --surface2:#f7f9fd;
+--border:#e3e8f1; --text:#121829; --muted:#657089; --faint:#8a93a8;
+--brand:#6366f1; --brand2:#8b5cf6; --accent:#14b8a6;
+--ok:#15a34a; --ok-bg:#e8f7ee; --warn:#c2740a; --warn-bg:#fdf2e2;
+--bad:#e11d48; --bad-bg:#fdecef; --track:#e6eaf3;
+--shadow:0 1px 2px rgba(16,24,48,.04),0 8px 24px rgba(16,24,48,.06);
+--shadow-sm:0 1px 2px rgba(16,24,48,.06); --r:16px;
+--font:"Inter",-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+--mono:"SF Mono",ui-monospace,"Cascadia Code","Consolas",monospace;}
+@media (prefers-color-scheme:dark){:root{
+--bg:#0a0e1a; --bg2:#070a13; --surface:#121829; --surface2:#171f33;
+--border:#263048; --text:#eef1f8; --muted:#9aa3bd; --faint:#6b7693;
+--ok:#34d383; --ok-bg:#0f2a1d; --warn:#f0a44c; --warn-bg:#2c2110;
+--bad:#fb7185; --bad-bg:#2b1420; --track:#232c43;
+--shadow:0 1px 2px rgba(0,0,0,.3),0 10px 30px rgba(0,0,0,.35);
+--shadow-sm:0 1px 2px rgba(0,0,0,.3);}}
 *{box-sizing:border-box}
-body{margin:0;font:15px/1.55 system-ui,-apple-system,Segoe UI,Roboto,sans-serif;
-background:var(--bg);color:var(--ink)}
-header{background:linear-gradient(100deg,#4f46e5,#0ea5a4);color:#fff;padding:26px 20px}
-header .wrap{max-width:1000px;margin:0 auto}
-header h1{margin:0;font-size:26px;letter-spacing:.3px}
-header p{margin:4px 0 0;opacity:.9;font-size:14px}
-main{max-width:1000px;margin:22px auto;padding:0 16px}
-.card{background:var(--card);border:1px solid var(--line);border-radius:14px;
-padding:20px;margin-bottom:18px;box-shadow:0 1px 3px rgba(20,30,60,.05)}
-.upload{display:flex;gap:14px;align-items:center;flex-wrap:wrap}
-input[type=file]{font:inherit}
-button{font:inherit;font-weight:600;background:var(--accent);color:#fff;border:0;
-border-radius:9px;padding:10px 18px;cursor:pointer}
-button:disabled{opacity:.5;cursor:default}
-.status{color:var(--muted);font-size:14px}
-.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:12px}
-.stat{background:#fafbff;border:1px solid var(--line);border-radius:11px;padding:14px}
-.stat .n{font-size:24px;font-weight:700}
-.stat .l{font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:.4px}
-.cols{display:grid;grid-template-columns:1fr;gap:18px}
-@media(min-width:820px){.cols{grid-template-columns:2fr 1fr}}
-h2{font-size:17px;margin:2px 0 12px}
-table{width:100%;border-collapse:collapse;font-size:14px}
-th,td{text-align:left;padding:8px 10px;border-bottom:1px solid var(--line);vertical-align:top}
-th{font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:.4px}
-code{font:13px/1.4 ui-monospace,Consolas,monospace;background:#f3f4f8;
-padding:1px 5px;border-radius:5px;display:inline-block;word-break:break-word}
-.badge{font-size:12px;font-weight:700;padding:2px 9px;border-radius:999px;white-space:nowrap}
-.b-ok{background:var(--okbg);color:var(--ok)}
-.b-review{background:var(--warnbg);color:var(--warn)}
-.b-failed{background:var(--badbg);color:var(--bad)}
-.warn{color:var(--warn);font-size:13px;margin-top:4px}
-.chip{display:inline-block;background:#eef0f7;border-radius:8px;padding:3px 9px;
-margin:3px 4px 0 0;font-size:13px}
-.dl a{display:inline-block;margin:4px 8px 0 0;padding:8px 13px;border:1px solid var(--line);
-border-radius:9px;text-decoration:none;color:var(--accent);font-weight:600;font-size:14px}
-.muted{color:var(--muted)}
-.spin{width:16px;height:16px;border:2px solid #c7cbe0;border-top-color:var(--accent);
-border-radius:50%;display:inline-block;animation:s .7s linear infinite;vertical-align:-3px}
+html{scroll-behavior:smooth}
+body{margin:0;font-family:var(--font);font-size:15px;line-height:1.55;
+background:radial-gradient(1200px 600px at 80% -10%,var(--bg2),var(--bg));
+color:var(--text);-webkit-font-smoothing:antialiased;min-height:100vh}
+a{color:var(--brand)}
+.wrap{max-width:1060px;margin:0 auto;padding:0 20px}
+/* header */
+header{padding:30px 0 14px}
+.brand{display:flex;align-items:center;gap:13px}
+.logo{width:42px;height:42px;border-radius:12px;flex:none;
+background:linear-gradient(135deg,var(--brand),var(--brand2) 55%,var(--accent));
+display:grid;place-items:center;color:#fff;font-weight:800;font-size:20px;
+box-shadow:0 6px 18px rgba(99,102,241,.35)}
+.brand h1{margin:0;font-size:22px;letter-spacing:-.4px;font-weight:800}
+.brand p{margin:1px 0 0;color:var(--muted);font-size:13.5px}
+main{padding:14px 0 56px}
+/* generic card */
+.panel{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);
+box-shadow:var(--shadow-sm);padding:20px;margin-bottom:18px}
+.panel-head{display:flex;align-items:center;justify-content:space-between;
+gap:12px;margin-bottom:16px;flex-wrap:wrap}
+.panel-head h3{margin:0;font-size:14px;font-weight:700;letter-spacing:.2px}
+h2{font-size:21px;margin:0;letter-spacing:-.3px}
+.small{font-size:13.5px}
+/* upload / dropzone */
+.hero{background:var(--surface);border:1px solid var(--border);border-radius:20px;
+box-shadow:var(--shadow);padding:22px;margin-bottom:22px}
+.drop{border:2px dashed var(--border);border-radius:14px;background:var(--surface2);
+padding:34px 20px;text-align:center;cursor:pointer;transition:.18s}
+.drop:hover{border-color:var(--brand);background:color-mix(in srgb,var(--brand) 6%,var(--surface2))}
+.drop.drag{border-color:var(--brand);background:color-mix(in srgb,var(--brand) 12%,var(--surface2));transform:scale(1.004)}
+.drop-ic{width:52px;height:52px;margin:0 auto 12px;border-radius:50%;
+background:color-mix(in srgb,var(--brand) 14%,transparent);display:grid;place-items:center;color:var(--brand)}
+.drop-title{font-weight:700;font-size:16px}
+.drop-sub{color:var(--muted);font-size:13.5px;margin-top:3px}
+.drop-file{margin-top:12px;font-size:13.5px;color:var(--brand);font-weight:600;min-height:18px}
+.link{background:none;border:0;color:var(--brand);font:inherit;font-weight:700;cursor:pointer;padding:0;text-decoration:underline}
+.actions{display:flex;align-items:center;gap:14px;margin-top:16px;flex-wrap:wrap}
+.btn-primary{font:inherit;font-weight:700;color:#fff;border:0;border-radius:11px;
+padding:11px 22px;cursor:pointer;background:linear-gradient(135deg,var(--brand),var(--brand2));
+box-shadow:0 6px 16px rgba(99,102,241,.3);transition:.15s}
+.btn-primary:hover:not(:disabled){transform:translateY(-1px);box-shadow:0 10px 22px rgba(99,102,241,.4)}
+.btn-primary:disabled{opacity:.45;cursor:default;box-shadow:none}
+.status{color:var(--muted);font-size:13.5px}
+.spin{width:15px;height:15px;border:2px solid var(--track);border-top-color:var(--brand);
+border-radius:50%;display:inline-block;animation:s .7s linear infinite;vertical-align:-3px;margin-right:5px}
 @keyframes s{to{transform:rotate(360deg)}}
-footer{max-width:1000px;margin:0 auto 30px;padding:0 16px;color:var(--muted);font-size:13px}
+/* summary + ring */
+.summary{display:flex;justify-content:space-between;align-items:center;gap:20px;
+background:var(--surface);border:1px solid var(--border);border-radius:var(--r);
+box-shadow:var(--shadow-sm);padding:22px;margin-bottom:18px;flex-wrap:wrap}
+.pills{display:flex;gap:8px;margin-top:10px;flex-wrap:wrap}
+.pill{font-size:12px;font-weight:700;padding:4px 11px;border-radius:999px;
+background:var(--surface2);border:1px solid var(--border);color:var(--muted)}
+.ring-wrap{position:relative;width:120px;height:120px;flex:none}
+.ring{transform:rotate(-90deg)}
+.ring-bg{fill:none;stroke:var(--track);stroke-width:11}
+.ring-fg{fill:none;stroke:url(#g);stroke-width:11;stroke-linecap:round;transition:stroke-dashoffset 1s cubic-bezier(.4,0,.2,1)}
+.ring-label{position:absolute;inset:0;display:grid;place-items:center;text-align:center}
+.ring-num{font-size:26px;font-weight:800;line-height:1}
+.ring-sub{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.6px}
+/* stat grid */
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:12px;margin-bottom:18px}
+.stat{background:var(--surface);border:1px solid var(--border);border-radius:14px;
+padding:15px 16px;box-shadow:var(--shadow-sm);position:relative;overflow:hidden}
+.stat::before{content:"";position:absolute;left:0;top:0;bottom:0;width:4px;background:var(--brand)}
+.stat.ok::before{background:var(--ok)} .stat.warn::before{background:var(--warn)}
+.stat.bad::before{background:var(--bad)} .stat.ac::before{background:var(--accent)}
+.stat-n{font-size:23px;font-weight:800;letter-spacing:-.5px}
+.stat-l{font-size:11.5px;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin-top:3px}
+/* layout */
+.layout{display:grid;grid-template-columns:1fr;gap:18px}
+@media(min-width:860px){.layout{grid-template-columns:1.9fr 1fr;align-items:start}}
+.side .panel{margin-bottom:18px}
+/* downloads */
+.dl{display:flex;gap:10px;flex-wrap:wrap}
+.dl a{display:flex;flex-direction:column;gap:1px;padding:10px 15px;border:1px solid var(--border);
+border-radius:11px;text-decoration:none;background:var(--surface2);transition:.15s;min-width:120px}
+.dl a:hover{border-color:var(--brand);transform:translateY(-1px);box-shadow:var(--shadow-sm)}
+.dl .dn{font-weight:700;font-size:13.5px;color:var(--text)}
+.dl .dt{font-size:11px;color:var(--faint);text-transform:uppercase;letter-spacing:.5px}
+/* filters */
+.filters{display:flex;gap:7px;flex-wrap:wrap}
+.chip{font:inherit;font-size:12.5px;font-weight:700;padding:5px 12px;border-radius:999px;
+border:1px solid var(--border);background:var(--surface2);color:var(--muted);cursor:pointer;transition:.14s}
+.chip:hover{border-color:var(--brand);color:var(--brand)}
+.chip.on{background:var(--brand);border-color:var(--brand);color:#fff}
+/* conversion items */
+.convlist{display:flex;flex-direction:column;gap:11px}
+.conv{border:1px solid var(--border);border-radius:13px;padding:14px;background:var(--surface2)}
+.conv.hide{display:none}
+.conv-top{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap}
+.conv-name{font-weight:700;font-size:14.5px}
+.tags{display:flex;gap:7px;align-items:center}
+.tag{font-size:11px;font-weight:700;color:var(--muted);background:var(--surface);
+border:1px solid var(--border);padding:2px 9px;border-radius:7px}
+.sp{font-size:11px;font-weight:800;padding:3px 10px;border-radius:999px;letter-spacing:.3px}
+.sp-ok{background:var(--ok-bg);color:var(--ok)} .sp-review{background:var(--warn-bg);color:var(--warn)}
+.sp-failed{background:var(--bad-bg);color:var(--bad)}
+.xform{display:grid;grid-template-columns:1fr auto 1fr;gap:10px;align-items:stretch;margin-top:12px}
+@media(max-width:620px){.xform{grid-template-columns:1fr;}.xarrow{transform:rotate(90deg);justify-self:center}}
+.cbox{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:9px 11px;min-width:0}
+.cbox .ct{font-size:10px;font-weight:800;letter-spacing:.6px;text-transform:uppercase;color:var(--faint);margin-bottom:4px}
+.cbox code{font-family:var(--mono);font-size:12.5px;color:var(--text);white-space:pre-wrap;word-break:break-word;display:block}
+.cbox.dax{border-color:color-mix(in srgb,var(--brand) 35%,var(--border))}
+.cbox.dax code{color:var(--brand)}
+.xarrow{display:grid;place-items:center;color:var(--faint);font-size:18px}
+.wn{margin-top:10px;font-size:12.5px;color:var(--warn);background:var(--warn-bg);
+border-radius:8px;padding:7px 11px}
+.chipgrp{display:flex;flex-wrap:wrap;gap:6px;margin-top:4px}
+.tagchip{font-size:12.5px;background:var(--surface2);border:1px solid var(--border);
+border-radius:8px;padding:3px 10px}
+.cl{margin-bottom:9px}
+.cl b{font-size:12.5px}
+.ok-note{color:var(--ok);font-weight:600}
+footer{color:var(--faint);font-size:12.5px;padding:8px 0 36px;text-align:center}
+footer b{color:var(--muted)}
 </style>'''
 
-HEADER = ('<header><div class="wrap"><h1>BIForge</h1><p>Offline Tableau to '
-          'Microsoft Fabric / Power BI migration - deterministic, rule-based, '
-          'no cloud.</p></div></header>')
+HEADER = ('<header><div class="wrap"><div class="brand">'
+          '<div class="logo">BI</div><div><h1>BIForge</h1>'
+          '<p>Tableau &rarr; Microsoft Fabric / Power BI migration &middot; '
+          'deterministic &middot; offline &middot; no cloud</p>'
+          '</div></div></div></header>')
 
-FOOTER = ('<footer>Runs fully on your machine. Verify every item flagged '
-          '<b>needs review</b> before sign-off.</footer>')
+FOOTER = ('<footer><div class="wrap">Runs fully on your machine. '
+          'Every item marked <b>review</b> is emitted best-effort &mdash; '
+          'verify it before sign-off.</div></footer>')
 
-UPLOAD_BODY = r'''<section class="card upload">
-  <input type="file" id="file" accept=".twb,.twbx">
-  <button id="run">Run migration</button>
-  <span class="status" id="status">Choose a Tableau .twb or .twbx workbook.</span>
+UPLOAD_BODY = r'''<section class="hero">
+  <div class="drop" id="drop">
+    <input type="file" id="file" accept=".twb,.twbx" hidden>
+    <div class="drop-ic"><svg width="24" height="24" viewBox="0 0 24 24" fill="none"
+      stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M12 16V4M6 10l6-6 6 6"/><path d="M4 20h16"/></svg></div>
+    <div class="drop-title">Drop a Tableau workbook here</div>
+    <div class="drop-sub">or <button type="button" id="browse" class="link">browse your files</button> &middot; .twb or .twbx</div>
+    <div class="drop-file" id="fname"></div>
+  </div>
+  <div class="actions">
+    <button id="run" class="btn-primary" disabled>Run migration</button>
+    <span class="status" id="status">Choose a workbook to begin.</span>
+  </div>
 </section>'''
 
 RESULTS_BODY = r'''<section id="results" hidden>
-  <section class="card"><h2 id="wbtitle"></h2>
-    <div class="grid" id="stats"></div></section>
-  <section class="card dl"><h2>Download artifacts</h2><div id="downloads"></div></section>
-  <div class="cols">
-    <section class="card"><h2>Conversion log</h2>
-      <table><thead><tr><th>Field</th><th>Type</th><th>Status</th></tr></thead>
-      <tbody id="convrows"></tbody></table></section>
-    <div>
-      <section class="card"><h2>Consolidation</h2>
-        <div id="clusters" class="muted"></div></section>
-      <section class="card"><h2>Integrity</h2>
-        <div id="integrity" class="muted"></div></section>
+  <div class="summary">
+    <div><h2 id="wbtitle"></h2><div class="pills" id="wbmeta"></div></div>
+    <div class="ring-wrap">
+      <svg class="ring" viewBox="0 0 120 120" width="120" height="120">
+        <defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1">
+          <stop offset="0" stop-color="#6366f1"/><stop offset="1" stop-color="#14b8a6"/>
+        </linearGradient></defs>
+        <circle class="ring-bg" cx="60" cy="60" r="52"/>
+        <circle class="ring-fg" id="ringfg" cx="60" cy="60" r="52"/>
+      </svg>
+      <div class="ring-label"><span class="ring-num" id="ringnum">0%</span>
+        <span class="ring-sub">clean DAX</span></div>
+    </div>
+  </div>
+
+  <div class="stats" id="stats"></div>
+
+  <div class="panel">
+    <div class="panel-head"><h3>Download artifacts</h3></div>
+    <div class="dl" id="downloads"></div>
+  </div>
+
+  <div class="layout">
+    <div class="panel">
+      <div class="panel-head"><h3>Conversion log</h3>
+        <div class="filters" id="filters"></div></div>
+      <div class="convlist" id="convlist"></div>
+    </div>
+    <div class="side">
+      <div class="panel"><div class="panel-head"><h3>Consolidation</h3></div>
+        <div id="clusters" class="muted small"></div></div>
+      <div class="panel"><div class="panel-head"><h3>Integrity</h3></div>
+        <div id="integrity" class="muted small"></div></div>
     </div>
   </div>
 </section>'''
@@ -89,65 +206,116 @@ RESULTS_BODY = r'''<section id="results" hidden>
 JS_RENDER = r'''
 const $ = s => document.querySelector(s);
 const esc = s => (s==null?'':String(s)).replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));
-function stat(n,l){ return '<div class="stat"><div class="n">'+n+'</div><div class="l">'+l+'</div></div>'; }
+const stat=(n,l,cls)=>'<div class="stat '+(cls||'')+'"><div class="stat-n">'+n+
+  '</div><div class="stat-l">'+l+'</div></div>';
+
 function render(d){
   const s=d.summary;
-  $('#wbtitle').textContent = d.workbook + '  -  ' + d.source + ' v' + d.version;
-  $('#stats').innerHTML =
-    stat(s.automated_accuracy+'%','Clean accuracy') +
-    stat(s.assisted_coverage+'%','Assisted coverage') +
-    stat(s.converted+' / '+s.needs_review+' / '+s.failed,'OK / Review / Failed') +
-    stat(s.calculated_fields,'Calculated fields') +
-    stat(s.worksheets,'Worksheets') + stat(s.dashboards,'Dashboards') +
-    stat('~'+s.estimated_hours+'h','Est. effort') + stat(s.overall_tier,'Complexity');
-  const badge={converted:'b-ok',review:'b-review',failed:'b-failed'};
-  $('#convrows').innerHTML = d.conversions.map(c=>{
-    let det='<code>'+esc(c.formula)+'</code>';
-    if(c.dax) det+='<div style="margin-top:4px">&rarr; <code>'+esc(c.dax)+'</code></div>';
-    (c.warnings||[]).forEach(w=>det+='<div class="warn">! '+esc(w)+'</div>');
-    return '<tr><td><b>'+esc(c.name)+'</b><br>'+det+'</td><td>'+esc(c.kind||'-')+
-      '</td><td><span class="badge '+badge[c.status]+'">'+c.status+'</span></td></tr>';
-  }).join('');
+  $('#wbtitle').textContent=d.workbook;
+  $('#wbmeta').innerHTML=[
+    '<span class="pill">'+esc(d.source)+' v'+esc(d.version)+'</span>',
+    '<span class="pill">'+s.datasources+' data source'+(s.datasources==1?'':'s')+'</span>',
+    '<span class="pill">'+s.fields+' fields</span>',
+    '<span class="pill">'+s.worksheets+' worksheets</span>',
+    '<span class="pill">'+s.dashboards+' dashboards</span>'].join('');
+
+  const C=2*Math.PI*52, fg=$('#ringfg');
+  $('#ringnum').textContent=s.automated_accuracy+'%';
+  fg.style.strokeDasharray=C; fg.style.strokeDashoffset=C;
+  requestAnimationFrame(()=>requestAnimationFrame(()=>{
+    fg.style.strokeDashoffset=C*(1-s.automated_accuracy/100);}));
+
+  $('#stats').innerHTML=
+    stat(s.assisted_coverage+'%','Assisted coverage','ac')+
+    stat(s.converted,'Converted clean','ok')+
+    stat(s.needs_review,'Needs review','warn')+
+    stat(s.failed,'Failed','bad')+
+    stat(s.calculated_fields,'Calculated fields','')+
+    stat('~'+s.estimated_hours+'h','Est. effort','')+
+    stat(s.overall_tier,'Complexity','ac');
+
   const base=d.file_base||'';
-  $('#downloads').innerHTML = d.files.map(f=>{
-    const dl=' download="'+esc(f)+'"';
-    if(d.artifacts && d.artifacts[f]!=null){           // serverless: inline content
-      const url=URL.createObjectURL(new Blob([d.artifacts[f]],{type:'text/plain'}));
-      return '<a href="'+url+'"'+dl+'>'+esc(f)+'</a>';
-    }
-    const nt=f.endsWith('.html')?' target="_blank"':'';  // local server / static files
-    return '<a href="'+base+encodeURIComponent(f)+'"'+nt+'>'+esc(f)+'</a>';
+  $('#downloads').innerHTML=d.files.map(f=>{
+    let href;
+    if(d.artifacts&&d.artifacts[f]!=null)
+      href=URL.createObjectURL(new Blob([d.artifacts[f]],{type:'text/plain'}));
+    else href=base+encodeURIComponent(f);
+    return '<a href="'+href+'" download="'+esc(f)+'"><span class="dn">'+esc(f)+
+      '</span><span class="dt">download</span></a>';
   }).join('');
-  $('#clusters').innerHTML = d.clusters.length
-    ? d.clusters.map((g,i)=>'<div style="margin-bottom:6px"><b>Cluster '+(i+1)+':</b> '+
-        g.map(n=>'<span class="chip">'+esc(n)+'</span>').join('')+'</div>').join('')
-    : 'No near-duplicate worksheets detected.';
-  const o=d.integrity.orphan_refs, e=d.integrity.empty_dashboards;
-  let ih = o.length
-    ? '<div>Unresolved field references:</div>'+o.map(x=>'<div class="warn">! <code>'+
-        esc(x[1])+'</code> in <i>'+esc(x[0])+'</i></div>').join('')
-    : 'All field references resolve.';
-  if(e.length) ih+='<div class="warn" style="margin-top:6px">Empty dashboards: '+esc(e.join(', '))+'</div>';
-  $('#integrity').innerHTML = ih;
+
+  const cnt=d.conversions.reduce((a,c)=>{a[c.status]=(a[c.status]||0)+1;return a;},{});
+  const fdefs=[['all','All',d.conversions.length],['converted','Converted',cnt.converted||0],
+    ['review','Review',cnt.review||0],['failed','Failed',cnt.failed||0]];
+  $('#filters').innerHTML=fdefs.map((f,i)=>'<button class="chip'+(i?'':' on')+
+    '" data-f="'+f[0]+'">'+f[1]+' '+f[2]+'</button>').join('');
+  $('#filters').querySelectorAll('.chip').forEach(ch=>ch.onclick=()=>{
+    $('#filters').querySelectorAll('.chip').forEach(x=>x.classList.remove('on'));
+    ch.classList.add('on'); const f=ch.dataset.f;
+    document.querySelectorAll('#convlist .conv').forEach(el=>
+      el.classList.toggle('hide', f!=='all'&&el.dataset.status!==f));
+  });
+
+  const spc={converted:'sp-ok',review:'sp-review',failed:'sp-failed'};
+  $('#convlist').innerHTML=d.conversions.map(c=>{
+    const x=c.dax
+      ? '<div class="xform"><div class="cbox"><div class="ct">Tableau</div><code>'+
+        esc(c.formula)+'</code></div><div class="xarrow">&rarr;</div>'+
+        '<div class="cbox dax"><div class="ct">DAX</div><code>'+esc(c.dax)+'</code></div></div>'
+      : '<div class="xform" style="grid-template-columns:1fr"><div class="cbox"><div class="ct">'+
+        'Tableau</div><code>'+esc(c.formula)+'</code></div></div>';
+    const wn=(c.warnings||[]).map(w=>'<div class="wn">&#9888; '+esc(w)+'</div>').join('');
+    return '<div class="conv" data-status="'+c.status+'"><div class="conv-top">'+
+      '<span class="conv-name">'+esc(c.name)+'</span><span class="tags">'+
+      '<span class="tag">'+esc(c.kind||'—')+'</span>'+
+      '<span class="sp '+spc[c.status]+'">'+c.status+'</span></span></div>'+x+wn+'</div>';
+  }).join('');
+
+  $('#clusters').innerHTML=d.clusters.length
+    ? '<div style="margin-bottom:8px">Near-duplicate worksheets &mdash; candidates to '+
+      'merge instead of migrating 1:1:</div>'+d.clusters.map((g,i)=>'<div class="cl">'+
+      '<b>Cluster '+(i+1)+'</b><div class="chipgrp">'+g.map(n=>'<span class="tagchip">'+
+      esc(n)+'</span>').join('')+'</div></div>').join('')
+    : '<span class="ok-note">&#10003;</span> No near-duplicate worksheets detected.';
+
+  const o=d.integrity.orphan_refs,e=d.integrity.empty_dashboards;
+  let ih=o.length
+    ? '<div style="margin-bottom:6px">Unresolved field references:</div>'+o.map(x=>
+      '<div class="wn">&#9888; <code style="font-family:var(--mono)">'+esc(x[1])+
+      '</code> in <i>'+esc(x[0])+'</i></div>').join('')
+    : '<span class="ok-note">&#10003;</span> All field references resolve.';
+  if(e.length) ih+='<div class="wn" style="margin-top:8px">Empty dashboards: '+esc(e.join(', '))+'</div>';
+  $('#integrity').innerHTML=ih;
+
   $('#results').hidden=false;
 }'''
 
 JS_UPLOAD = r'''
-const EP = (typeof BF_ENDPOINT !== 'undefined') ? BF_ENDPOINT : '/migrate';
-const fileEl=$('#file'), runEl=$('#run'), statusEl=$('#status');
-runEl.onclick = async () => {
-  const f = fileEl.files[0];
-  if(!f){ statusEl.textContent='Please choose a .twb or .twbx file first.'; return; }
+const EP=(typeof BF_ENDPOINT!=='undefined')?BF_ENDPOINT:'/migrate';
+const fileEl=$('#file'),runEl=$('#run'),statusEl=$('#status'),dropEl=$('#drop'),fnameEl=$('#fname');
+let chosen=null;
+function setFile(f){ if(!f)return; chosen=f; fnameEl.textContent='Selected: '+f.name;
+  runEl.disabled=false; statusEl.textContent='Ready to migrate.'; }
+$('#browse').onclick=e=>{e.stopPropagation();fileEl.click();};
+dropEl.onclick=()=>fileEl.click();
+fileEl.onchange=()=>setFile(fileEl.files[0]);
+['dragenter','dragover'].forEach(ev=>dropEl.addEventListener(ev,e=>{
+  e.preventDefault();dropEl.classList.add('drag');}));
+['dragleave','dragend'].forEach(ev=>dropEl.addEventListener(ev,e=>dropEl.classList.remove('drag')));
+dropEl.addEventListener('drop',e=>{e.preventDefault();dropEl.classList.remove('drag');
+  const f=e.dataTransfer.files[0]; if(f){fileEl.files=e.dataTransfer.files;setFile(f);}});
+runEl.onclick=async()=>{
+  if(!chosen){statusEl.textContent='Choose a .twb or .twbx file first.';return;}
   runEl.disabled=true;
-  statusEl.innerHTML='<span class="spin"></span> Migrating ' + esc(f.name) + ' ...';
+  statusEl.innerHTML='<span class="spin"></span> Migrating '+esc(chosen.name)+' …';
   try{
-    const r = await fetch(EP+'?name='+encodeURIComponent(f.name),{method:'POST',body:f});
-    const d = await r.json();
-    if(!r.ok || d.error){ statusEl.textContent='Error: '+(d.error||r.status); return; }
+    const r=await fetch(EP+'?name='+encodeURIComponent(chosen.name),{method:'POST',body:chosen});
+    const d=await r.json();
+    if(!r.ok||d.error){statusEl.textContent='Error: '+(d.error||r.status);runEl.disabled=false;return;}
     render(d); $('#results').scrollIntoView({behavior:'smooth'});
-    statusEl.textContent='Done - '+f.name;
-  }catch(e){ statusEl.textContent='Error: '+e.message; }
-  finally{ runEl.disabled=false; }
+    statusEl.textContent='Done — '+chosen.name;
+  }catch(e){statusEl.textContent='Error: '+e.message;}
+  runEl.disabled=false;
 };'''
 
 
@@ -155,7 +323,7 @@ def _doc(title: str, body: str, js: str) -> str:
     return ('<!doctype html><html lang="en"><head><meta charset="utf-8">'
             '<meta name="viewport" content="width=device-width,initial-scale=1">'
             '<title>' + title + '</title>' + CSS + '</head><body>' + HEADER +
-            '<main>' + body + '</main>' + FOOTER +
+            '<main><div class="wrap">' + body + '</div></main>' + FOOTER +
             '<script>' + js + '</script></body></html>')
 
 
@@ -172,7 +340,7 @@ PAGE = build_upload_page("/migrate")
 
 
 def build_dashboard(payload: dict, title: str) -> str:
-    """Self-contained static dashboard with the run's data embedded."""
+    """Self-contained static dashboard with the run's data embedded (offline)."""
     import json
     data = dict(payload)
     data["file_base"] = ""        # artifacts sit next to this HTML file

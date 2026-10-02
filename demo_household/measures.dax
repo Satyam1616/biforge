@@ -1,0 +1,8 @@
+// Converted measures from 'HouseholdProductsSales'
+
+Total Revenue = SUM ( 'Household Products Sales'[Revenue] )
+
+Profit Margin = ( SUM ( 'Household Products Sales'[Profit] ) / SUM ( 'Household Products Sales'[Revenue] ) )
+
+Net Units = COALESCE ( SUM ( 'Household Products Sales'[Units Sold] ), 0 )
+
