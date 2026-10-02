@@ -67,7 +67,7 @@ def convert(wb: Workbook) -> dict:
             conversions.append(rec)
 
     return {"files": _render_files(wb, tables), "conversions": conversions,
-            "measure_names": sorted(measure_names)}
+            "measure_names": sorted(measure_names), "tables": tables}
 
 
 def _render_files(wb: Workbook, tables: dict) -> dict[str, str]:

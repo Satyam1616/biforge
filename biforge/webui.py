@@ -69,6 +69,7 @@ class Handler(BaseHTTPRequestHandler):
             return self._send(404, "not found", "text/plain")
         ctype = ("text/html; charset=utf-8" if safe.endswith(".html")
                  else "application/json" if safe.endswith(".json")
+                 else "application/zip" if safe.endswith(".zip")
                  else "text/plain; charset=utf-8")
         with open(full, "rb") as fh:
             self._send(200, fh.read(), ctype)

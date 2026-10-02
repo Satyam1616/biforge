@@ -7,6 +7,7 @@ ephemeral serverless instances where no shared disk survives between requests.
 """
 from __future__ import annotations
 
+import base64
 import os
 import tempfile
 
@@ -26,9 +27,16 @@ def migrate_bytes(data: bytes, filename: str) -> dict:
     res = run(in_path, scratch, want_json=True)
     payload = res["payload"]
 
-    artifacts: dict[str, str] = {}
+    text: dict[str, str] = {}        # text artifacts, downloaded as-is
+    binary: dict[str, str] = {}      # binary artifacts (e.g. .zip), base64-encoded
     for path in res["written"]:
-        with open(path, "r", encoding="utf-8") as fh:
-            artifacts[os.path.basename(path)] = fh.read()
-    payload["artifacts"] = artifacts        # client builds downloads from these
+        name = os.path.basename(path)
+        if name.lower().endswith(".zip"):
+            with open(path, "rb") as fh:
+                binary[name] = base64.b64encode(fh.read()).decode("ascii")
+        else:
+            with open(path, "r", encoding="utf-8") as fh:
+                text[name] = fh.read()
+    payload["artifacts"] = text          # client builds text downloads from these
+    payload["artifacts_b64"] = binary    # client base64-decodes these
     return payload

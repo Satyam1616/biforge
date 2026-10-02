@@ -27,7 +27,9 @@ LLM guess.
   deciding measure vs calculated column exactly as Power BI does.
 - **Scores complexity & estimates effort**, and clusters near-duplicate reports
   (Jaccard similarity) so you consolidate instead of migrating 1:1.
-- **Emits Power BI Project artifacts** — `model.tmdl` + `measures.dax`.
+- **Emits Power BI artifacts** — a ready-to-open **Power BI Project (`.pbip`)**
+  packaged as a `.zip` (semantic model in TMDL + report), plus standalone
+  `model.tmdl` and `measures.dax`.
 - **Validates honestly** — clean accuracy vs assisted coverage, orphan field
   references, empty dashboards; every uncertain item flagged for sign-off.
 - **Web UI + static dashboard** — upload a workbook in the browser, or open the
@@ -58,7 +60,7 @@ same engine also runs as a CLI and a local server.
 |-------|--------|--------|
 | 1 Discovery | `parse_tableau` | inventory of data sources, fields, worksheets, dashboards |
 | 2 Estimation | `complexity` | per-asset complexity, effort estimate, duplicate-report clusters |
-| 3 Migration | `emit_powerbi` | `model.tmdl` + `measures.dax` (Power BI Project format) |
+| 3 Migration | `emit_powerbi`, `pbip` | `<name>.pbip.zip` (Power BI Project) + `model.tmdl` + `measures.dax` |
 | 4 Review/testing | `validate` | accuracy %, coverage, orphan refs, integrity findings |
 | 5–6 Governance/hypercare | `report` | sign-off checklist in the assessment |
 
@@ -140,6 +142,7 @@ biforge/
   dax_transpile.py  ─┘
   dax_functions.py  function/operator mapping tables
   emit_powerbi.py   TMDL + DAX emission
+  pbip.py           Power BI Project (.pbip) assembler + .zip packager
   validate.py       coverage & integrity checks
   report.py         markdown assessment
   payload.py        shared UI/JSON payload builder
@@ -167,7 +170,11 @@ tests/              unittest suite
 - Migrates the logical model and calculations, not pixel-perfect visual layout.
 - Table calculations (`WINDOW_*`, `RUNNING_*`, `INDEX`) and LOD expressions are
   flagged for manual porting.
-- Output is TMDL text for Power BI Projects (`.pbip`), not a binary `.pbix`.
+- Produces a **Power BI Project (`.pbip`)** zip — open it in Power BI Desktop
+  (enable *Preview features → Power BI Project (.pbip) save option*). The report
+  opens as a blank page bound to the migrated model; visuals aren't reproduced.
+  A binary `.pbix` is **not** generated — it is a proprietary format that can't
+  be written correctly without Power BI's own libraries.
 
 ## License
 

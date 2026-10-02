@@ -14,7 +14,7 @@ import json
 import os
 import sys
 
-from . import complexity, emit_powerbi, report, validate, webui_page
+from . import complexity, emit_powerbi, pbip, report, validate, webui_page
 from .ingest import load_workbook_xml
 from .parse_tableau import parse_twb_string
 from .payload import build_payload
@@ -28,7 +28,9 @@ def run(input_path: str, out_dir: str, want_json: bool = True) -> dict:
     val = validate.validate(wb, conv["conversions"])       # stage 4
 
     os.makedirs(out_dir, exist_ok=True)
-    names = ["model.tmdl", "measures.dax", "assessment.md", "assessment.html"]
+    pbip_name = f"{wb_name}.pbip.zip"
+    names = ["model.tmdl", "measures.dax", pbip_name,
+             "assessment.md", "assessment.html"]
     if want_json:
         names.append("manifest.json")
     written = [os.path.join(out_dir, n) for n in names]
@@ -44,6 +46,8 @@ def run(input_path: str, out_dir: str, want_json: bool = True) -> dict:
 
     for rel, content in conv["files"].items():             # model.tmdl, measures.dax
         _write(rel, content)
+    with open(os.path.join(out_dir, pbip_name), "wb") as fh:   # Power BI Project
+        fh.write(pbip.build_pbip_zip(wb, conv["tables"]))
     _write("assessment.md", md)
     _write("assessment.html",
            webui_page.build_dashboard(payload, f"BIForge - {wb_name}"))  # stages 5-6

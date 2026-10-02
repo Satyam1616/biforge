@@ -101,6 +101,8 @@ border-radius:11px;text-decoration:none;background:var(--surface2);transition:.1
 .dl a:hover{border-color:var(--brand);transform:translateY(-1px);box-shadow:var(--shadow-sm)}
 .dl .dn{font-weight:700;font-size:13.5px;color:var(--text)}
 .dl .dt{font-size:11px;color:var(--faint);text-transform:uppercase;letter-spacing:.5px}
+.dl a.hot{background:linear-gradient(135deg,color-mix(in srgb,var(--brand) 14%,var(--surface)),color-mix(in srgb,var(--accent) 12%,var(--surface)));border-color:color-mix(in srgb,var(--brand) 40%,var(--border))}
+.dl a.hot .dt{color:var(--brand)}
 /* filters */
 .filters{display:flex;gap:7px;flex-wrap:wrap}
 .chip{font:inherit;font-size:12.5px;font-weight:700;padding:5px 12px;border-radius:999px;
@@ -235,13 +237,21 @@ function render(d){
     stat(s.overall_tier,'Complexity','ac');
 
   const base=d.file_base||'';
+  const dtype=f=>f.endsWith('.pbip.zip')?'Power BI project':f.endsWith('.tmdl')?'TMDL model':
+    f.endsWith('.dax')?'DAX measures':f.endsWith('.md')?'assessment':
+    f.endsWith('.html')?'dashboard':f.endsWith('.json')?'manifest':'download';
   $('#downloads').innerHTML=d.files.map(f=>{
     let href;
     if(d.artifacts&&d.artifacts[f]!=null)
       href=URL.createObjectURL(new Blob([d.artifacts[f]],{type:'text/plain'}));
-    else href=base+encodeURIComponent(f);
-    return '<a href="'+href+'" download="'+esc(f)+'"><span class="dn">'+esc(f)+
-      '</span><span class="dt">download</span></a>';
+    else if(d.artifacts_b64&&d.artifacts_b64[f]!=null){
+      const bin=atob(d.artifacts_b64[f]),u8=new Uint8Array(bin.length);
+      for(let i=0;i<bin.length;i++)u8[i]=bin.charCodeAt(i);
+      href=URL.createObjectURL(new Blob([u8],{type:'application/zip'}));
+    } else href=base+encodeURIComponent(f);
+    const hot=f.endsWith('.pbip.zip')?' class="hot"':'';
+    return '<a href="'+href+'" download="'+esc(f)+'"'+hot+'><span class="dn">'+esc(f)+
+      '</span><span class="dt">'+dtype(f)+'</span></a>';
   }).join('');
 
   const cnt=d.conversions.reduce((a,c)=>{a[c.status]=(a[c.status]||0)+1;return a;},{});
